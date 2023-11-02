@@ -1,0 +1,17 @@
+!pip install cvlib
+!pip install opencv-python
+import cv2
+import cvlib as cv
+from cvlib.object_detection import draw_bbox
+img = cv2.imread('檔案名稱')#改成從iphone擷取的圖片
+img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+bbox, label, conf = cv.detect_common_objects(img_rgb,confidence=0.5)#參數可調
+bicycle_count = label.count('bicycle')
+print(bicycle_count )
+
+用不到的畫圖(標框)
+output = draw_bbox(img, bbox, label, conf)
+cv2.putText(output, f'Bicycles: {bicycle_count}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+cv2.imshow('Object Detection', output)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
