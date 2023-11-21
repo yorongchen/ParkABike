@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+import pygsheets
+import pandas as pd
+import cv2
+import time
+import cvlib as cv
+from cvlib.object_detection import draw_bbox
+
+def object_detection():
+    # Initialize the video capture object
+    cap = cv2.VideoCapture(1)
+    
+    gc = pygsheets.authorize(service_file="C:/Users/74654/OneDrive/python-404614-42f20d988307.json")
+    df = pd.DataFrame()
+    df['name'] = ['普通教學館']
+
+    try:
+        while True:
+            # Read a frame from the video capture
+            ret, frame = cap.read()
+
+            if not ret:
+                print("無法獲取圖像")
+                break
+
+            # Convert the frame to RGB
+            img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+            # Perform object detection
+            bbox, label, conf = cv.detect_common_objects(img_rgb, confidence=0.1)
+
+            # Count the number of bicycles
+            bicycle_count = label.count('bicycle')
+            print("自行車數量:", bicycle_count)
+
+            df['count'] = [bicycle_count]
+            sh = gc.open('pythonAPI')
+            wks = sh[0]  
+            wks.set_dataframe(df,(0,0))
+            # Wait for five seconds
+            time.sleep(5)
+
+            # Exit the loop if the ESC key is pressed
+            if cv2.waitKey(1) == 27:
+                break
+
+    finally:
+        # Release the camera resources
+        cap.release()
+        cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    object_detection()
